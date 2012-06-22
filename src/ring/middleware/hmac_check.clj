@@ -18,17 +18,18 @@
     - header-field should be the key for the hmac in the header
     - forbidden-handler, digest-decoder and pred are functions that can be overwritten to change
       default behavoir"
-  [handler {:keys [algorithm header-field secret-key forbidden-handler digest-decoder pred]
+  [handler {:keys [algorithm header-field secret-key forbidden-handler digest-decoder pred message]
             :or {forbidden-handler (fn [req]
                                      {:status 403 :body "403 Forbidden - Incorrect HMAC"})
                  pred (fn [req] (= :post (:request-method req)))
-                 digest-decoder (fn [digest] (-> digest char-array Hex/decodeHex))}}]
+                 digest-decoder (fn [digest] (-> digest char-array Hex/decodeHex))
+                 message (fn [req] (:body req))}}]
   {:pre [(every? identity [algorithm header-field secret-key])]}
   (fn [req]
     (handler
      (if (pred req)
        (let [given-hmac (get (:headers req) header-field)
-             our-hmac (hmac algorithm (:body req) secret-key)]
+             our-hmac (hmac algorithm (message req) secret-key)]
          (if (Arrays/equals (digest-decoder given-hmac) our-hmac)
            req
            (forbidden-handler req)))
