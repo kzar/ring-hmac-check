@@ -26,11 +26,10 @@
                  message (fn [req] (slurp (:body req)))}}]
   {:pre [(every? identity [algorithm header-field secret-key])]}
   (fn [req]
-    (handler
-      (if (pred req)
-        (let [given-hmac (get (:headers req) header-field)
-              our-hmac (hmac algorithm (message req) secret-key)]
-          (if (Arrays/equals (digest-decoder given-hmac) our-hmac)
-            req
-            (forbidden-handler req)))
-        req))))
+    (if (pred req)
+      (let [given-hmac (get (:headers req) header-field)
+            our-hmac (hmac algorithm (message req) secret-key)]
+        (if (Arrays/equals (digest-decoder given-hmac) our-hmac)
+          (handler req)
+          (forbidden-handler req)))
+      (handler req))))
