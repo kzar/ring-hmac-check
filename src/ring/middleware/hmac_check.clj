@@ -4,12 +4,12 @@
 
 (defn hmac
   ([algorithm msg key]
-     (hmac algorithm msg key "UTF8"))
+    (hmac algorithm msg key "UTF8"))
   ([algorithm msg key encoding]
-     (let [key (javax.crypto.spec.SecretKeySpec. (.getBytes key "UTF8") algorithm)
-           mac (doto (javax.crypto.Mac/getInstance algorithm)
-                 (.init key))]
-       (.doFinal mac (.getBytes msg encoding)))))
+    (let [key (javax.crypto.spec.SecretKeySpec. (.getBytes key "UTF8") algorithm)
+          mac (doto (javax.crypto.Mac/getInstance algorithm)
+                (.init key))]
+      (.doFinal mac (.getBytes msg encoding)))))
 
 (defn wrap-hmac-check
   "Function used to add the hmac-check middleware to the Ring stack. By default this will
@@ -27,10 +27,10 @@
   {:pre [(every? identity [algorithm header-field secret-key])]}
   (fn [req]
     (handler
-     (if (pred req)
-       (let [given-hmac (get (:headers req) header-field)
-             our-hmac (hmac algorithm (message req) secret-key)]
-         (if (Arrays/equals (digest-decoder given-hmac) our-hmac)
-           req
-           (forbidden-handler req)))
-       req))))
+      (if (pred req)
+        (let [given-hmac (get (:headers req) header-field)
+              our-hmac (hmac algorithm (message req) secret-key)]
+          (if (Arrays/equals (digest-decoder given-hmac) our-hmac)
+            req
+            (forbidden-handler req)))
+        req))))
