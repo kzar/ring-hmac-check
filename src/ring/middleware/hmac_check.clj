@@ -16,8 +16,8 @@
   check POST requests for a Hex encoded digest and if wrong overwrite the response as 403 forbidden.
     - algorithm should be an algorithm string, for example HmacSHA512
     - header-field should be the key for the hmac in the header
-    - forbidden-handler, digest-decoder and pred are functions that can be overwritten to change
-      default behavoir"
+    - forbidden-handler, digest-decoder, pred and message are functions that can be overwritten
+      to change default behavoir"
   [handler {:keys [algorithm header-field secret-key forbidden-handler digest-decoder pred message]
             :or {forbidden-handler (fn [req]
                                      {:status 403 :body "403 Forbidden - Incorrect HMAC"})
