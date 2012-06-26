@@ -2,3 +2,6 @@ lib
 classes
 *.jar
 pom.xml
+.classpath
+.project
+.lein*

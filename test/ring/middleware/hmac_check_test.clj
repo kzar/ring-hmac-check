@@ -2,6 +2,7 @@
   (:import [org.apache.commons.codec.binary Base64 Hex]
            [java.util Arrays])
   (:use clojure.test
+        ring.util.test
         ring.middleware.hmac-check))
 
 (def hmac-check-handler (wrap-hmac-check identity {:algorithm "HmacSHA512" :header-field "AUTH-HMAC"
@@ -14,7 +15,7 @@
               :remote-addr "localhost"
               :scheme :http
               :headers {"AUTH-HMAC" "dcb14db632d96a3a4dd9259c858242b037b3e95bd569744097231aa0c042ff147b927d0a4704e82732a250717851e89e64421793f259185c0675a64694966da3"}
-              :body "This is the test body"})
+              :body (string-input-stream "This is the test body")})
 
 
 (deftest hmac-sha512
@@ -25,7 +26,7 @@
   (is (= (hmac-check-handler request) request)))
 
 (deftest invalid-request
-  (let [request (assoc request :body "This is a different test body")
+  (let [request (assoc request :body (string-input-stream "This is a different test body"))
         response (hmac-check-handler request)]
     (is (= (:status response) 403))
     (is (= (:body response) "403 Forbidden - Incorrect HMAC"))))
