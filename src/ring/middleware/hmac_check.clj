@@ -23,7 +23,7 @@
                                      {:status 403 :body "403 Forbidden - Incorrect HMAC"})
                  pred (fn [req] (= :post (:request-method req)))
                  digest-decoder (fn [digest] (-> digest char-array Hex/decodeHex))
-                 message (fn [req] (:body req))}}]
+                 message (fn [req] (slurp (:body req)))}}]
   {:pre [(every? identity [algorithm header-field secret-key])]}
   (fn [req]
     (handler
