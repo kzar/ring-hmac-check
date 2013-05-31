@@ -19,7 +19,7 @@
 
     - algorithm should be an algorithm string, for example HmacSHA512
     - header-field should be the key for the hmac in the header (takes
-        prescedence over hmac-accessor-fn)
+        precedence over hmac-accessor-fn)
     - hmac-accessor-fn optionally used to supply a function to retrieve the hmac
         instead of using header-field
     - forbidden-handler, digest-decoder, pred and message are functions that can 
