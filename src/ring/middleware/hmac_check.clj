@@ -18,12 +18,14 @@
   the response as 403 forbidden.
 
     - algorithm should be an algorithm string, for example HmacSHA512
+    - secret key should be a string, or function which takes the request and
+        returns a string
     - header-field should be the key for the hmac in the header (takes
         precedence over hmac-accessor-fn)
-    - hmac-accessor-fn optionally used to supply a function to retrieve the hmac
-        instead of using header-field
-    - forbidden-handler, digest-decoder, pred and message are functions that can 
-      be overwritten to change default behavoir"
+    - hmac-accessor-fn optionally used to supply a function to retrieve the
+        hmac instead of using header-field
+    - forbidden-handler, digest-decoder, pred and message are functions that
+        can be overwritten to change default behavior"
   [handler {:keys [algorithm header-field secret-key hmac-accessor-fn
                    forbidden-handler digest-decoder pred message]
             :or {forbidden-handler (fn [req]
@@ -39,7 +41,9 @@
     (if (pred req)
       (let [given-hmac (or (get (:headers req) header-field)
                            (and hmac-accessor-fn (hmac-accessor-fn req)))
-            our-hmac (hmac algorithm (message req) secret-key)]
+            secret (or (and (fn? secret-key) (secret-key req))
+                       secret-key)
+            our-hmac (hmac algorithm (message req) secret)]
         (if (Arrays/equals (digest-decoder given-hmac) our-hmac)
           (handler req)
           (forbidden-handler req)))
